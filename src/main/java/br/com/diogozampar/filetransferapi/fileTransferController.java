@@ -2,9 +2,13 @@ package br.com.diogozampar.filetransferapi;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.boot.autoconfigure.ssl.SslProperties.Bundles.Watch.File;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +43,7 @@ public class fileTransferController {
 
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("/file") MultipartFile file){
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file){
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
         try{
@@ -79,6 +83,14 @@ public class fileTransferController {
             return ResponseEntity.badRequest().build();
         }
     } 
+
+
+    @GetMapping("/list")
+    public ResponseEntity<List<String>> listFiles() throws IOException{
+        List<String> fileNames = Files.list(fileStorageLocation).map(Path::getFileName).map(Path::toString).collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(fileNames);
+    }
 
 
 }
